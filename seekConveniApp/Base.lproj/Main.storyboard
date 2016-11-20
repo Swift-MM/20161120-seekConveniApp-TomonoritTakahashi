@@ -45,12 +45,18 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="destSearchBar" destination="QIC-po-NPQ" id="ULI-R9-Bfr"/>
                         <outlet property="mapView" destination="4Y6-VI-hpx" id="sLq-jo-dhJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="l9f-sU-CzW">
+                    <connections>
+                        <action selector="pressMap:" destination="BYZ-38-t0r" id="Ixr-NP-QvC"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="136.80000000000001" y="138.98050974512745"/>
+            <point key="canvasLocation" x="-463" y="115"/>
         </scene>
     </scenes>
 </document>

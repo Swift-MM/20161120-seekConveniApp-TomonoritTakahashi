@@ -5,11 +5,8 @@ import CoreLocation
 // CLLocationManagerDelegateを継承しなければならない
 class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDelegate,MKMapViewDelegate {
     
-    @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var mapView: MKMapView! = MKMapView()
     @IBOutlet weak var destSearchBar: UISearchBar!
-    
-//    var annotation = MKPointAnnotation()
-    
     
     // 現在地の位置情報の取得にはCLLocationManagerを使用
     var lm: CLLocationManager!
@@ -17,11 +14,6 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
     var latitude: CLLocationDegrees!
     // 取得した経度を保持するインスタンス
     var longitude: CLLocationDegrees!
-    
-    
-    
-    
-    
     
     
     
@@ -55,28 +47,7 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         // 距離のフィルタ.
         lm.distanceFilter = 100.0
         
-        
-        //中心座標
-        //let center = CLLocationCoordinate2DMake(.coordinate.latitude, .coordinate.longitude) //現在地の座標を入れたい
-        
-        //表示範囲
-        //let span = MKCoordinateSpanMake(10.0, 10.0)
-        
-        //中心座標と表示範囲をマップに登録する。
-        //let region = MKCoordinateRegionMake(center, span)
-        //mapView.setRegion(region, animated:true)
-        
-        
-        
     }
-    
-    
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-    
-    
     
     //ここはOKそう
     /* 位置情報取得成功時に実行される関数 */
@@ -89,13 +60,11 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         
         //現在位置をマップの中心にして登録する。
         for location in locations {
-        let center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
-        let span = MKCoordinateSpanMake(0.05, 0.05)
-        let region = MKCoordinateRegionMake(center, span)
-        mapView.setRegion(region, animated:true)
+            let center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
+            let span = MKCoordinateSpanMake(0.05, 0.05)
+            let region = MKCoordinateRegionMake(center, span)
+            mapView.setRegion(region, animated:true)
         }
-        
-        
         
         // 取得した緯度・経度をLogに表示
         NSLog("latitude: \(latitude) , longitude: \(longitude)")
@@ -108,6 +77,25 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         // この例ではLogにErrorと表示するだけ．
         NSLog("Error")
     }
+    
+//    @IBAction func pressMap(_ sender: UILongPressGestureRecognizer) {
+//        //マップビュー内のタップした位置を取得する。
+//        let location:CGPoint = sender.location(in: mapView)
+//        
+//        if (sender.state == UIGestureRecognizerState.ended){
+//            
+//            //タップした位置を緯度、経度の座標に変換する。
+//            let mapPoint:CLLocationCoordinate2D = mapView.converttoCoordinateFromPoint(location, toCoordinateFromView: mapView)
+//            
+//            //ピンを作成してマップビューに登録する。
+//            let annotation = MKPointAnnotation()
+//            annotation.coordinate = CLLocationCoordinate2DMake(mapPoint.latitude, mapPoint.longitude)
+//            annotation.title = "目的地候補"
+//            annotation.subtitle = "ボタンタップで経路を表示"
+//            mapView.addAnnotation(annotation)
+//            
+//        }
+//    }
     
     
 }
