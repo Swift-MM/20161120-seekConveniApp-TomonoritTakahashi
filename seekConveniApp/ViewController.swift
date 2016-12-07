@@ -34,9 +34,9 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         // 位置情報取得の許可を求めるメッセージの表示．必須．
         lm.requestAlwaysAuthorization()
         // 位置情報の精度を指定．任意，
-        // lm.desiredAccuracy = kCLLocationAccuracyBest
+         lm.desiredAccuracy = kCLLocationAccuracyBest
         // 位置情報取得間隔を指定．指定した値（メートル）移動したら位置情報を更新する．任意．
-        // lm.distanceFilter = 1000
+         lm.distanceFilter = 1000
         
         
         // GPSの使用を開始する
