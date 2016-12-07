@@ -16,7 +16,6 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
     var longitude: CLLocationDegrees!
     
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -24,6 +23,9 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         lm = CLLocationManager()
         longitude = CLLocationDegrees()
         latitude = CLLocationDegrees()
+        
+        mapView.frame = self.view.frame
+
         
         //デリゲート先に自分を設定する。
         mapView.delegate = self
@@ -47,7 +49,71 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         // 距離のフィルタ.
         lm.distanceFilter = 100.0
         
+        // 長押しのUIGestureRecognizerを生成.
+        let myLongPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer()
+        myLongPress.addTarget(self, action: #selector(ViewController.recognizeLongPress(sender:)))
+        
+        // MapViewにUIGestureRecognizerを追加.
+        mapView.addGestureRecognizer(myLongPress)
+        
     }
+    
+    /*
+     長押しを感知した際に呼ばれるメソッド.
+     */
+    func recognizeLongPress(sender: UILongPressGestureRecognizer) {
+        
+        // 長押しの最中に何度もピンを生成しないようにする.
+        if sender.state != UIGestureRecognizerState.began {
+            return
+        }
+        
+        // 長押しした地点の座標を取得.
+        let location = sender.location(in: mapView)
+        
+        // locationをCLLocationCoordinate2Dに変換.
+        let myCoordinate: CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
+        
+        // ピンを生成.
+        let myPin: MKPointAnnotation = MKPointAnnotation()
+        
+        // 座標を設定.
+        myPin.coordinate = myCoordinate
+        
+        // タイトルを設定.
+        myPin.title = "タイトル"
+        
+        // サブタイトルを設定.
+        myPin.subtitle = "サブタイトル"
+        
+        // MapViewにピンを追加.
+        mapView.addAnnotation(myPin)
+    }
+    
+    /*
+    addAnnotationした際に呼ばれるデリゲートメソッド.
+    */
+    func myMapView(_ myMapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
+        let myPinIdentifier = "PinAnnotationIdentifier"
+        
+        // ピンを生成.
+        let myPinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: myPinIdentifier)
+        
+        // アニメーションをつける.
+//        myPinView.animatesDrop = true
+        
+        // コールアウトを表示する.
+        myPinView.canShowCallout = true
+        
+        // annotationを設定.
+        myPinView.annotation = annotation
+        
+        return myPinView
+
+    }
+    
+    
     
     //ここはOKそう
     /* 位置情報取得成功時に実行される関数 */
