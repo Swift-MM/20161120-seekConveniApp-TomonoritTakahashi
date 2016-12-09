@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D295F4421DF908E900E3CF7C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D295F4411DF908E900E3CF7C /* CoreLocation.framework */; };
+		D295F44D1DF90DB700E3CF7C /* trackingFollow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D295F44A1DF90DB700E3CF7C /* trackingFollow@2x.png */; };
+		D295F44E1DF90DB700E3CF7C /* trackingHeading@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D295F44B1DF90DB700E3CF7C /* trackingHeading@2x.png */; };
+		D295F44F1DF90DB700E3CF7C /* trackingNone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D295F44C1DF90DB700E3CF7C /* trackingNone@2x.png */; };
 		D2E68B4C1DE0B8F000DB63F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E68B4B1DE0B8F000DB63F4 /* AppDelegate.swift */; };
 		D2E68B4E1DE0B8F000DB63F4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E68B4D1DE0B8F000DB63F4 /* ViewController.swift */; };
 		D2E68B511DE0B8F000DB63F4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D2E68B4F1DE0B8F000DB63F4 /* Main.storyboard */; };
@@ -16,6 +20,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D295F4411DF908E900E3CF7C /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		D295F44A1DF90DB700E3CF7C /* trackingFollow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "trackingFollow@2x.png"; sourceTree = "<group>"; };
+		D295F44B1DF90DB700E3CF7C /* trackingHeading@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "trackingHeading@2x.png"; sourceTree = "<group>"; };
+		D295F44C1DF90DB700E3CF7C /* trackingNone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "trackingNone@2x.png"; sourceTree = "<group>"; };
 		D2E68B481DE0B8F000DB63F4 /* seekConveniApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = seekConveniApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2E68B4B1DE0B8F000DB63F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D2E68B4D1DE0B8F000DB63F4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -31,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D295F4421DF908E900E3CF7C /* CoreLocation.framework in Frameworks */,
 				D2E68B5F1DE0D1FF00DB63F4 /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -38,6 +47,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D295F4431DF90CB700E3CF7C /* image */ = {
+			isa = PBXGroup;
+			children = (
+				D295F44A1DF90DB700E3CF7C /* trackingFollow@2x.png */,
+				D295F44B1DF90DB700E3CF7C /* trackingHeading@2x.png */,
+				D295F44C1DF90DB700E3CF7C /* trackingNone@2x.png */,
+			);
+			path = image;
+			sourceTree = "<group>";
+		};
 		D2E68B3F1DE0B8F000DB63F4 = {
 			isa = PBXGroup;
 			children = (
@@ -58,6 +77,7 @@
 		D2E68B4A1DE0B8F000DB63F4 /* seekConveniApp */ = {
 			isa = PBXGroup;
 			children = (
+				D295F4431DF90CB700E3CF7C /* image */,
 				D2E68B4B1DE0B8F000DB63F4 /* AppDelegate.swift */,
 				D2E68B4D1DE0B8F000DB63F4 /* ViewController.swift */,
 				D2E68B4F1DE0B8F000DB63F4 /* Main.storyboard */,
@@ -71,6 +91,7 @@
 		D2E68B5D1DE0D1FF00DB63F4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D295F4411DF908E900E3CF7C /* CoreLocation.framework */,
 				D2E68B5E1DE0D1FF00DB63F4 /* MapKit.framework */,
 			);
 			name = Frameworks;
@@ -135,9 +156,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D295F44E1DF90DB700E3CF7C /* trackingHeading@2x.png in Resources */,
+				D295F44D1DF90DB700E3CF7C /* trackingFollow@2x.png in Resources */,
 				D2E68B561DE0B8F000DB63F4 /* LaunchScreen.storyboard in Resources */,
 				D2E68B531DE0B8F000DB63F4 /* Assets.xcassets in Resources */,
 				D2E68B511DE0B8F000DB63F4 /* Main.storyboard in Resources */,
+				D295F44F1DF90DB700E3CF7C /* trackingNone@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,6 +333,7 @@
 				D2E68B5C1DE0B8F000DB63F4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

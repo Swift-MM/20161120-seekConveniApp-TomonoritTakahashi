@@ -3,17 +3,15 @@ import MapKit
 import CoreLocation
 
 // CLLocationManagerDelegateを継承しなければならない
-class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDelegate,MKMapViewDelegate {
+class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDelegate,MKMapViewDelegate {
     
-    @IBOutlet weak var mapView: MKMapView! = MKMapView()
-    @IBOutlet weak var destSearchBar: UISearchBar!
+    @IBOutlet weak var conveniMapView: MKMapView! = MKMapView() //マップ生成
+    @IBOutlet weak var destSearchBar: UISearchBar! //検索バー
+    
+    @IBOutlet weak var trackingButton: UIBarButtonItem! // トラッキングのボタン
     
     // 現在地の位置情報の取得にはCLLocationManagerを使用
     var lm: CLLocationManager!
-    // 取得した緯度を保持するインスタンス
-    var latitude: CLLocationDegrees!
-    // 取得した経度を保持するインスタンス
-    var longitude: CLLocationDegrees!
     
     
     override func viewDidLoad() {
@@ -21,24 +19,22 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         
         // フィールドの初期化
         lm = CLLocationManager()
-        longitude = CLLocationDegrees()
-        latitude = CLLocationDegrees()
         
-        mapView.frame = self.view.frame
-
+        conveniMapView.frame = self.view.frame
+        
         
         //デリゲート先に自分を設定する。
-        mapView.delegate = self
+        conveniMapView.delegate = self
         
         // CLLocationManagerをDelegateに指定
         lm.delegate = self
         
         // 位置情報取得の許可を求めるメッセージの表示．必須．
-        lm.requestAlwaysAuthorization()
+        lm.requestWhenInUseAuthorization()
         // 位置情報の精度を指定．任意，
-         lm.desiredAccuracy = kCLLocationAccuracyBest
+        lm.desiredAccuracy = kCLLocationAccuracyBest
         // 位置情報取得間隔を指定．指定した値（メートル）移動したら位置情報を更新する．任意．
-         lm.distanceFilter = 1000
+        lm.distanceFilter = 1000
         
         
         // GPSの使用を開始する
@@ -49,12 +45,15 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         // 距離のフィルタ.
         lm.distanceFilter = 100.0
         
+        //スケールを表示する
+        conveniMapView.showsScale = true
+        
         // 長押しのUIGestureRecognizerを生成.
         let myLongPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer()
         myLongPress.addTarget(self, action: #selector(ViewController.recognizeLongPress(sender:)))
         
         // MapViewにUIGestureRecognizerを追加.
-        mapView.addGestureRecognizer(myLongPress)
+        conveniMapView.addGestureRecognizer(myLongPress)
         
     }
     
@@ -69,10 +68,10 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         }
         
         // 長押しした地点の座標を取得.
-        let location = sender.location(in: mapView)
+        let location = sender.location(in: conveniMapView)
         
         // locationをCLLocationCoordinate2Dに変換.
-        let myCoordinate: CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
+        let myCoordinate: CLLocationCoordinate2D = conveniMapView.convert(location, toCoordinateFrom: conveniMapView)
         
         // ピンを生成.
         let myPin: MKPointAnnotation = MKPointAnnotation()
@@ -87,13 +86,13 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         myPin.subtitle = "サブタイトル"
         
         // MapViewにピンを追加.
-        mapView.addAnnotation(myPin)
+        conveniMapView.addAnnotation(myPin)
     }
     
     /*
-    addAnnotationした際に呼ばれるデリゲートメソッド.
-    */
-    func myMapView(_ myMapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+     addAnnotationした際に呼ばれるデリゲートメソッド.
+     */
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
         let myPinIdentifier = "PinAnnotationIdentifier"
         
@@ -101,7 +100,7 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         let myPinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: myPinIdentifier)
         
         // アニメーションをつける.
-//        myPinView.animatesDrop = true
+        myPinView.animatesDrop = true
         
         // コールアウトを表示する.
         myPinView.canShowCallout = true
@@ -110,58 +109,66 @@ class ViewController: UIViewController, UITextFieldDelegate,CLLocationManagerDel
         myPinView.annotation = annotation
         
         return myPinView
-
+        
     }
     
     
-    
-    //ここはOKそう
-    /* 位置情報取得成功時に実行される関数 */
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let newLocation = locations.last
-        // 取得した緯度がnewLocation.coordinate.longitudeに格納されている
-        latitude = newLocation!.coordinate.latitude
-        // 取得した経度がnewLocation.coordinate.longitudeに格納されている
-        longitude = newLocation!.coordinate.longitude
-        
-        //現在位置をマップの中心にして登録する。
-        for location in locations {
-            let center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
-            let span = MKCoordinateSpanMake(0.05, 0.05)
-            let region = MKCoordinateRegionMake(center, span)
-            mapView.setRegion(region, animated:true)
+    //トラッキングボタンが押されたときのメソッド（トラッキングモード切り替え）
+    @IBAction func tapTrackingButton(_ sender: UIBarButtonItem) {
+        switch conveniMapView.userTrackingMode{
+        case .none:
+            //noneからfollowへ
+            conveniMapView.setUserTrackingMode(.follow, animated: true)
+            //トラッキングボタンの画像を変更する
+            trackingButton.image = UIImage(named: "trackingFollow")
+            
+        case .follow:
+            //followからfollowWithHeadingへ
+            conveniMapView.setUserTrackingMode(.followWithHeading, animated: true)
+            //トラッキングボタンの画像を変更する
+            trackingButton.image = UIImage(named: "trackingHeading")
+            
+        case .followWithHeading:
+            //followWithHeadingからnoneへ
+            conveniMapView.setUserTrackingMode(.none, animated: true)
+            //トラッキングボタンの画像を変更する
+            trackingButton.image = UIImage(named: "trackingNone")
         }
-        
-        // 取得した緯度・経度をLogに表示
-        NSLog("latitude: \(latitude) , longitude: \(longitude)")
-        // GPSの使用を停止する．停止しない限りGPSは実行され，指定間隔で更新され続ける．
-        // lm.stopUpdatingLocation()
     }
     
-    /* 位置情報取得失敗時に実行される関数 */
-    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
-        // この例ではLogにErrorと表示するだけ．
-        NSLog("Error")
+    
+    //トラッキングが自動解除された
+    @objc(mapView:didChangeUserTrackingMode:animated:) func mapView (_ mapView :MKMapView, didChange mode:MKUserTrackingMode, animated:Bool){
+        trackingButton.image = UIImage(named: "trackingNone")
     }
     
-//    @IBAction func pressMap(_ sender: UILongPressGestureRecognizer) {
-//        //マップビュー内のタップした位置を取得する。
-//        let location:CGPoint = sender.location(in: mapView)
-//        
-//        if (sender.state == UIGestureRecognizerState.ended){
-//            
-//            //タップした位置を緯度、経度の座標に変換する。
-//            let mapPoint:CLLocationCoordinate2D = mapView.converttoCoordinateFromPoint(location, toCoordinateFromView: mapView)
-//            
-//            //ピンを作成してマップビューに登録する。
-//            let annotation = MKPointAnnotation()
-//            annotation.coordinate = CLLocationCoordinate2DMake(mapPoint.latitude, mapPoint.longitude)
-//            annotation.title = "目的地候補"
-//            annotation.subtitle = "ボタンタップで経路を表示"
-//            mapView.addAnnotation(annotation)
-//            
-//        }
-//    }
-    
-    
+    //位置情報利用許可のステータスが変わった
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status{
+        //ロケーションの更新を開始する
+        case .authorizedAlways, .authorizedWhenInUse:
+            lm.startUpdatingLocation()
+            
+            //トラッキングボタンを有効にする
+            trackingButton.isEnabled = true
+            
+        default:
+            
+            //ロケーションの更新を停止する
+            lm.stopUpdatingLocation()
+            
+            //トラッキングモードをnoneにする
+            conveniMapView.setUserTrackingMode(.none, animated: true)
+            
+            // トラッキングボタンを変更する
+            trackingButton.image = UIImage(named: "trackingNone")
+            
+            //トラッキングボタンを無効にする
+            trackingButton.isEnabled = false
+        }
+    }
 }
+
+
+
+
