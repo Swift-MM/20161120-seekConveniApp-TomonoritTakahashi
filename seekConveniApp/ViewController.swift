@@ -2,6 +2,14 @@ import UIKit
 import MapKit
 import CoreLocation
 
+extension MKPlacemark {
+    var address: String {
+        let components = [self.administrativeArea, self.locality, self.thoroughfare, self.subThoroughfare]
+        return components.flatMap { $0 }.joined(separator: "")
+    }
+}
+
+
 // CLLocationManagerDelegateを継承しなければならない
 class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDelegate,MKMapViewDelegate {
     
@@ -13,12 +21,33 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     // 現在地の位置情報の取得にはCLLocationManagerを使用
     var lm: CLLocationManager!
     
+    // 取得した現在地の緯度を保持するインスタンス
+    var latitude: CLLocationDegrees!
+    // 取得した現在地の経度を保持するインスタンス
+    var longitude: CLLocationDegrees!
+    
+    //任意のピンを刺した位置の緯度経度を保持するインスタンス
+    var pinLatitude: CLLocationDegrees!
+    var pinLongitude: CLLocationDegrees!
+
+    //立てるピンのインスタンス
+    var myPin: MKPointAnnotation!
+
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // フィールドの初期化
         lm = CLLocationManager()
+        latitude = CLLocationDegrees()
+        longitude = CLLocationDegrees()
+        
+        //立てたピンの緯度経度の初期化
+        pinLatitude = CLLocationDegrees()
+        pinLongitude = CLLocationDegrees()
+
+        
         
         conveniMapView.frame = self.view.frame
         
@@ -32,9 +61,9 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         // 位置情報取得の許可を求めるメッセージの表示．必須．
         lm.requestWhenInUseAuthorization()
         // 位置情報の精度を指定．任意，
-        lm.desiredAccuracy = kCLLocationAccuracyBest
+        lm.desiredAccuracy = kCLLocationAccuracyKilometer
         // 位置情報取得間隔を指定．指定した値（メートル）移動したら位置情報を更新する．任意．
-        lm.distanceFilter = 1000
+        lm.distanceFilter = 100
         
         
         // GPSの使用を開始する
@@ -57,6 +86,8 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         
     }
     
+    
+    
     /*
      長押しを感知した際に呼ばれるメソッド.
      */
@@ -73,47 +104,55 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         // locationをCLLocationCoordinate2Dに変換.
         let myCoordinate: CLLocationCoordinate2D = conveniMapView.convert(location, toCoordinateFrom: conveniMapView)
         
+        //長押しした地点＝ピンを刺す地点の緯度経度を変数に格納
+        pinLatitude = myCoordinate.latitude
+        pinLongitude = myCoordinate.longitude
+        
         // ピンを生成.
-        let myPin: MKPointAnnotation = MKPointAnnotation()
+        myPin = MKPointAnnotation()
         
         // 座標を設定.
         myPin.coordinate = myCoordinate
         
         // タイトルを設定.
-        myPin.title = "タイトル"
+        myPin.title = "国名"
         
-        // サブタイトルを設定.
-        myPin.subtitle = "サブタイトル"
+        // サブタイトルを設定.（緯度経度を表示）
+        myPin.subtitle = "latitude: \(pinLatitude!) , longitude: \(pinLongitude!)"
         
-        // MapViewにピンを追加.
+         //MapViewにピンを追加.
         conveniMapView.addAnnotation(myPin)
+        
+        //ピンの情報を取得
+        self.reverseGeocord(latitude: pinLatitude, longitude: pinLongitude, myPin: myPin)
     }
+    
+//    /*
+//     addAnnotationした際に呼ばれるデリゲートメソッド.
+//     */
+//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+//        
+//        let myPinIdentifier = "PinAnnotationIdentifier"
+//        
+//        // ピンを生成.
+//        let myPinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: myPinIdentifier)
+//        
+//        // アニメーションをつける.
+//        myPinView.animatesDrop = true
+//        
+//        // コールアウトを表示する.
+//        myPinView.canShowCallout = true
+//        
+//        // annotationを設定.
+//        myPinView.annotation = annotation
+//        
+//        return myPinView
+//        
+//    }
     
     /*
-     addAnnotationした際に呼ばれるデリゲートメソッド.
+     * トラッキングボタンが押されたときのメソッド（トラッキングモード切り替え）
      */
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        
-        let myPinIdentifier = "PinAnnotationIdentifier"
-        
-        // ピンを生成.
-        let myPinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: myPinIdentifier)
-        
-        // アニメーションをつける.
-        myPinView.animatesDrop = true
-        
-        // コールアウトを表示する.
-        myPinView.canShowCallout = true
-        
-        // annotationを設定.
-        myPinView.annotation = annotation
-        
-        return myPinView
-        
-    }
-    
-    
-    //トラッキングボタンが押されたときのメソッド（トラッキングモード切り替え）
     @IBAction func tapTrackingButton(_ sender: UIBarButtonItem) {
         switch conveniMapView.userTrackingMode{
         case .none:
@@ -136,8 +175,9 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         }
     }
     
-    
-    //トラッキングが自動解除された
+    /*
+     * トラッキングが自動解除されたとき
+     */
     @objc(mapView:didChangeUserTrackingMode:animated:) func mapView (_ mapView :MKMapView, didChange mode:MKUserTrackingMode, animated:Bool){
         trackingButton.image = UIImage(named: "trackingNone")
     }
@@ -167,7 +207,68 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
             trackingButton.isEnabled = false
         }
     }
+    
+    /* 現在の位置情報取得成功時に実行される関数 */
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let newLocation = locations.last
+        // 取得した緯度がnewLocation.coordinate.longitudeに格納されている
+        latitude = newLocation!.coordinate.latitude
+        // 取得した経度がnewLocation.coordinate.longitudeに格納されている
+        longitude = newLocation!.coordinate.longitude
+        
+        
+        
+        
+        // 取得した緯度・経度をLogに表示
+        NSLog("latitude: \(latitude) , longitude: \(longitude)")
+        // GPSの使用を停止する．停止しない限りGPSは実行され，指定間隔で更新され続ける．
+        // lm.stopUpdatingLocation()
+    }
+    
+    /* 位置情報取得失敗時に実行される関数 */
+    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+        // この例ではLogにErrorと表示するだけ．
+        NSLog("Error")
+    }
+    
+    
+    
+    /*
+     * 立てたピンの座標から情報を呼び出す関数
+     */
+    func reverseGeocord (latitude:CLLocationDegrees , longitude:CLLocationDegrees, myPin:MKPointAnnotation){
+        
+        // geocoderを作成.
+        let myGeocorder = CLGeocoder()
+        
+        // locationを作成.
+        let myLocation = CLLocation(latitude: latitude, longitude: longitude)
+        
+        
+        //逆ジオコーディングで座標から国名、住所、名称、郵便番号等を取得。
+        myGeocorder.reverseGeocodeLocation(myLocation, completionHandler: { (placemarks, error) -> Void in
+            
+            for placemark in placemarks! {
+                
+                print("Name: \(placemark.name)")
+                print("Country: \(placemark.country)")
+                print("ISOcountryCode: \(placemark.isoCountryCode)")
+                print("administrativeArea: \(placemark.administrativeArea)")
+                print("subAdministrativeArea: \(placemark.subAdministrativeArea)")
+                print("Locality: \(placemark.locality)")
+                print("PostalCode: \(placemark.postalCode)")
+                print("areaOfInterest: \(placemark.areasOfInterest)")
+                print("Ocean: \(placemark.ocean)")
+                
+                // pinのタイトルとサブタイトルを国名と土地名称に変更する.
+                self.myPin.title = "\(placemark.country!)"
+                self.myPin.subtitle = "\(placemark.name!)"
+            }
+        })
+
+    }
 }
+
 
 
 

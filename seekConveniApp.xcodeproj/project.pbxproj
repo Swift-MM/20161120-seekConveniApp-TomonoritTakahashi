@@ -130,6 +130,11 @@
 					D2E68B471DE0B8F000DB63F4 = {
 						CreatedOnToolsVersion = 8.1;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
