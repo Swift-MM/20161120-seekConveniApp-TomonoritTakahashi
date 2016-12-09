@@ -42,10 +42,17 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kXw-Mt-Bxw" userLabel="user Location">
+                                <rect key="frame" x="0.0" y="593" width="375" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="4Y6-VI-hpx" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="7Rb-GL-Oze"/>
+                            <constraint firstAttribute="trailing" secondItem="kXw-Mt-Bxw" secondAttribute="trailing" id="AOk-xH-ww5"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="4Y6-VI-hpx" secondAttribute="bottom" id="Arw-pB-r7i"/>
                             <constraint firstItem="QIC-po-NPQ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="50" id="C6V-B1-PsH"/>
                             <constraint firstAttribute="trailing" secondItem="4Y6-VI-hpx" secondAttribute="trailing" id="GcG-ri-Pj5"/>
@@ -53,14 +60,17 @@
                             <constraint firstItem="QIC-po-NPQ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="MdL-j0-CXL"/>
                             <constraint firstItem="4Y6-VI-hpx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="QrY-bL-fgZ"/>
                             <constraint firstAttribute="trailing" secondItem="QIC-po-NPQ" secondAttribute="trailing" id="Ydf-Xz-ChP"/>
+                            <constraint firstItem="Yki-wf-u1j" firstAttribute="top" secondItem="kXw-Mt-Bxw" secondAttribute="bottom" id="mOZ-zD-x6X"/>
                             <constraint firstItem="Yki-wf-u1j" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="oMh-NI-Z1S"/>
                             <constraint firstAttribute="trailing" secondItem="Yki-wf-u1j" secondAttribute="trailing" id="sez-ke-vog"/>
+                            <constraint firstItem="kXw-Mt-Bxw" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="xDg-HJ-cSK"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="conveniMapView" destination="4Y6-VI-hpx" id="qzg-HF-fRs"/>
                         <outlet property="destSearchBar" destination="QIC-po-NPQ" id="ULI-R9-Bfr"/>
                         <outlet property="trackingButton" destination="gCp-zF-Lun" id="Y4C-4e-dNO"/>
+                        <outlet property="userLocation" destination="kXw-Mt-Bxw" id="1mQ-AP-rqS"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

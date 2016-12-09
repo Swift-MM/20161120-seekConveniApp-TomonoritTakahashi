@@ -18,13 +18,16 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     
     @IBOutlet weak var trackingButton: UIBarButtonItem! // トラッキングのボタン
     
+    @IBOutlet weak var userLocation: UITextField!
+    
+    
     // 現在地の位置情報の取得にはCLLocationManagerを使用
     var lm: CLLocationManager!
     
     // 取得した現在地の緯度を保持するインスタンス
-    var latitude: CLLocationDegrees!
+    var userLatitude: CLLocationDegrees!
     // 取得した現在地の経度を保持するインスタンス
-    var longitude: CLLocationDegrees!
+    var userLongitude: CLLocationDegrees!
     
     //任意のピンを刺した位置の緯度経度を保持するインスタンス
     var pinLatitude: CLLocationDegrees!
@@ -32,6 +35,8 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
 
     //立てるピンのインスタンス
     var myPin: MKPointAnnotation!
+    
+    var userPin: MKPointAnnotation!
 
     
     
@@ -40,8 +45,8 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         
         // フィールドの初期化
         lm = CLLocationManager()
-        latitude = CLLocationDegrees()
-        longitude = CLLocationDegrees()
+        userLatitude = CLLocationDegrees()
+        userLongitude = CLLocationDegrees()
         
         //立てたピンの緯度経度の初期化
         pinLatitude = CLLocationDegrees()
@@ -58,22 +63,20 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         // CLLocationManagerをDelegateに指定
         lm.delegate = self
         
+        //サーチバーのデリゲートを自分に設定
+        destSearchBar.delegate = self
+        
         // 位置情報取得の許可を求めるメッセージの表示．必須．
         lm.requestWhenInUseAuthorization()
         // 位置情報の精度を指定．任意，
         lm.desiredAccuracy = kCLLocationAccuracyKilometer
         // 位置情報取得間隔を指定．指定した値（メートル）移動したら位置情報を更新する．任意．
-        lm.distanceFilter = 100
+        lm.distanceFilter = 100.0
         
         
         // GPSの使用を開始する
         lm.startUpdatingLocation()
-        
-        
-        //現在位置の地図の表示
-        // 距離のフィルタ.
-        lm.distanceFilter = 100.0
-        
+    
         //スケールを表示する
         conveniMapView.showsScale = true
         
@@ -127,9 +130,9 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         self.reverseGeocord(latitude: pinLatitude, longitude: pinLongitude, myPin: myPin)
     }
     
-//    /*
-//     addAnnotationした際に呼ばれるデリゲートメソッド.
-//     */
+    /*
+     addAnnotationした際に呼ばれるデリゲートメソッド.
+     */
 //    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 //        
 //        let myPinIdentifier = "PinAnnotationIdentifier"
@@ -149,7 +152,7 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
 //        return myPinView
 //        
 //    }
-    
+//    
     /*
      * トラッキングボタンが押されたときのメソッド（トラッキングモード切り替え）
      */
@@ -210,26 +213,89 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     
     /* 現在の位置情報取得成功時に実行される関数 */
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let newLocation = locations.last
-        // 取得した緯度がnewLocation.coordinate.longitudeに格納されている
-        latitude = newLocation!.coordinate.latitude
-        // 取得した経度がnewLocation.coordinate.longitudeに格納されている
-        longitude = newLocation!.coordinate.longitude
+//        let newLocation = locations.last
+//        // 取得した緯度がnewLocation.coordinate.longitudeに格納されている
+//        userLatitude = newLocation!.coordinate.latitude
+//        // 取得した経度がnewLocation.coordinate.longitudeに格納されている
+//        userLongitude = newLocation!.coordinate.longitude
+//        
+//        let userLocation:CLLocationCoordinate2D  = CLLocationCoordinate2DMake(userLatitude,userLongitude)
+//        
+//        let userLocAnnotation: MKPointAnnotation = MKPointAnnotation()
+//        userLocAnnotation.coordinate = userLocation
+//        
+//        conveniMapView.addAnnotation(userLocAnnotation)
+
+//        self.reverseGeocord(latitude: userLatitude, longitude: userLongitude, myPin: userLocAnnotation)
+        
+        
+        for location in locations {
+            
+            //中心座標
+            let center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
+            
+            //表示範囲
+            let span = MKCoordinateSpanMake(0.01, 0.01)
+            
+            //中心座標と表示範囲をマップに登録する。
+            let region = MKCoordinateRegionMake(center, span)
+            conveniMapView.setRegion(region, animated:true)
+            
+            if(userPin == nil) {
+                //初回はマップにピンを格納する。
+                userPin = MKPointAnnotation()
+                userPin.coordinate = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
+                conveniMapView.addAnnotation(userPin)
+            } else {
+                //2回目以降は移動前と後の座標間に直線を引く。
+                
+                //始点と終点の座標
+                var lineLocation:[CLLocationCoordinate2D] = [CLLocationCoordinate2D(latitude: userPin.coordinate.latitude, longitude: userPin.coordinate.longitude),CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)]
+                
+                //2点間に直線を描画する。
+                let line = MKPolyline(coordinates: &lineLocation, count: 2)
+                conveniMapView.add(line)
+                
+                //ピンの位置を更新する。
+                userPin.coordinate = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
+            }
+            
+        }
+        
+        
+        
+        
         
         
         
         
         // 取得した緯度・経度をLogに表示
-        NSLog("latitude: \(latitude) , longitude: \(longitude)")
+        NSLog("latitude: \(userLatitude) , longitude: \(userLongitude)")
         // GPSの使用を停止する．停止しない限りGPSは実行され，指定間隔で更新され続ける．
         // lm.stopUpdatingLocation()
     }
     
     /* 位置情報取得失敗時に実行される関数 */
-    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         // この例ではLogにErrorと表示するだけ．
         NSLog("Error")
     }
+    
+    
+    //描画メソッド実行時の呼び出しメソッド
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let testRender = MKPolylineRenderer(overlay: overlay)
+        
+        //直線の幅を設定する。
+        testRender.lineWidth = 3
+        
+        //直線の色を設定する。
+        testRender.strokeColor = UIColor.red
+        
+        return testRender
+    }
+    
+    
     
     
     
@@ -261,8 +327,13 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
                 print("Ocean: \(placemark.ocean)")
                 
                 // pinのタイトルとサブタイトルを国名と土地名称に変更する.
-                self.myPin.title = "\(placemark.country!)"
-                self.myPin.subtitle = "\(placemark.name!)"
+                
+                
+                //「?」でnilを許容…oceanとかがnilになりやすいので。
+                    self.myPin?.title = "\(placemark.country!)"
+                    self.myPin?.subtitle = "\(placemark.name!)"
+                
+                self.userLocation.text = "\(placemark.country!),\(placemark.name!)"
             }
         })
 
