@@ -34,8 +34,12 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     var pinLongitude: CLLocationDegrees!
 
     //立てるピンのインスタンス
+    
+    //長押しで立てるピン
     var myPin: MKPointAnnotation!
     
+    
+    //ユーザーの現在地に立てるピン
     var userPin: MKPointAnnotation!
 
     
@@ -71,7 +75,7 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         // 位置情報の精度を指定．任意，
         lm.desiredAccuracy = kCLLocationAccuracyKilometer
         // 位置情報取得間隔を指定．指定した値（メートル）移動したら位置情報を更新する．任意．
-        lm.distanceFilter = 100.0
+        lm.distanceFilter = 1000.0
         
         
         // GPSの使用を開始する
@@ -111,7 +115,7 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         pinLatitude = myCoordinate.latitude
         pinLongitude = myCoordinate.longitude
         
-        // ピンを生成.
+        // ピンを生成.（長押し時のもの）
         myPin = MKPointAnnotation()
         
         // 座標を設定.
@@ -146,13 +150,15 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
 //        // コールアウトを表示する.
 //        myPinView.canShowCallout = true
 //        
+//        myPinView.pinTintColor = UIColor.blue
+//        
 //        // annotationを設定.
 //        myPinView.annotation = annotation
 //        
 //        return myPinView
 //        
 //    }
-//    
+    
     /*
      * トラッキングボタンが押されたときのメソッド（トラッキングモード切り替え）
      */
@@ -213,62 +219,18 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     
     /* 現在の位置情報取得成功時に実行される関数 */
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        let newLocation = locations.last
-//        // 取得した緯度がnewLocation.coordinate.longitudeに格納されている
-//        userLatitude = newLocation!.coordinate.latitude
-//        // 取得した経度がnewLocation.coordinate.longitudeに格納されている
-//        userLongitude = newLocation!.coordinate.longitude
-//        
-//        let userLocation:CLLocationCoordinate2D  = CLLocationCoordinate2DMake(userLatitude,userLongitude)
-//        
-//        let userLocAnnotation: MKPointAnnotation = MKPointAnnotation()
-//        userLocAnnotation.coordinate = userLocation
-//        
-//        conveniMapView.addAnnotation(userLocAnnotation)
-
-//        self.reverseGeocord(latitude: userLatitude, longitude: userLongitude, myPin: userLocAnnotation)
+        let newLocation = locations.last
+        // 取得した緯度がnewLocation.coordinate.longitudeに格納されている
+        userLatitude = newLocation!.coordinate.latitude
+        // 取得した経度がnewLocation.coordinate.longitudeに格納されている
+        userLongitude = newLocation!.coordinate.longitude
         
+        let userLocation:CLLocationCoordinate2D  = CLLocationCoordinate2DMake(userLatitude,userLongitude)
+        userPin = MKPointAnnotation()
+        userPin.coordinate = userLocation
         
-        for location in locations {
-            
-            //中心座標
-            let center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
-            
-            //表示範囲
-            let span = MKCoordinateSpanMake(0.01, 0.01)
-            
-            //中心座標と表示範囲をマップに登録する。
-            let region = MKCoordinateRegionMake(center, span)
-            conveniMapView.setRegion(region, animated:true)
-            
-            if(userPin == nil) {
-                //初回はマップにピンを格納する。
-                userPin = MKPointAnnotation()
-                userPin.coordinate = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
-                conveniMapView.addAnnotation(userPin)
-            } else {
-                //2回目以降は移動前と後の座標間に直線を引く。
-                
-                //始点と終点の座標
-                var lineLocation:[CLLocationCoordinate2D] = [CLLocationCoordinate2D(latitude: userPin.coordinate.latitude, longitude: userPin.coordinate.longitude),CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)]
-                
-                //2点間に直線を描画する。
-                let line = MKPolyline(coordinates: &lineLocation, count: 2)
-                conveniMapView.add(line)
-                
-                //ピンの位置を更新する。
-                userPin.coordinate = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude)
-            }
-            
-        }
-        
-        
-        
-        
-        
-        
-        
-        
+        conveniMapView.addAnnotation(userPin)
+    
         // 取得した緯度・経度をLogに表示
         NSLog("latitude: \(userLatitude) , longitude: \(userLongitude)")
         // GPSの使用を停止する．停止しない限りGPSは実行され，指定間隔で更新され続ける．
@@ -282,25 +244,8 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     }
     
     
-    //描画メソッド実行時の呼び出しメソッド
-    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        let testRender = MKPolylineRenderer(overlay: overlay)
-        
-        //直線の幅を設定する。
-        testRender.lineWidth = 3
-        
-        //直線の色を設定する。
-        testRender.strokeColor = UIColor.red
-        
-        return testRender
-    }
-    
-    
-    
-    
-    
     /*
-     * 立てたピンの座標から情報を呼び出す関数
+     * 座標から情報を呼び出す関数
      */
     func reverseGeocord (latitude:CLLocationDegrees , longitude:CLLocationDegrees, myPin:MKPointAnnotation){
         
@@ -338,6 +283,45 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
         })
 
     }
+    
+    
+    /*
+     * コールアウトにボタンを表示するメソッド
+     */
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+        for view in views {
+            view.rightCalloutAccessoryView = UIButton(type: UIButtonType.detailDisclosure)
+        }
+    }
+    
+    
+    /*
+     * コールアウトのボタンが押されたときのメソッド
+     */
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        
+        
+        // UIAlertControllerを作成する.
+        let myAlert: UIAlertController = UIAlertController(title: "ピンの削除", message: "Delete this pin?", preferredStyle: .alert)
+        
+        // OKが押されたらピンを削除するアクションを作成.
+        let myOkAction = UIAlertAction(title: "OK", style: .default) { action in
+            mapView.removeAnnotation(view.annotation!)
+        }
+        
+        //ピンの削除をキャンセルするアクションを作成.
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
+        
+        // OK,cancelのActionを追加する.
+        myAlert.addAction(myOkAction)
+        myAlert.addAction(cancelAction)
+        
+        // UIAlertを発動する.
+        present(myAlert, animated: true, completion: nil)
+
+    }
+    
 }
 
 
