@@ -137,27 +137,27 @@ class ViewController: UIViewController, UISearchBarDelegate,CLLocationManagerDel
     /*
      addAnnotationした際に呼ばれるデリゲートメソッド.
      */
-//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-//        
-//        let myPinIdentifier = "PinAnnotationIdentifier"
-//        
-//        // ピンを生成.
-//        let myPinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: myPinIdentifier)
-//        
-//        // アニメーションをつける.
-//        myPinView.animatesDrop = true
-//        
-//        // コールアウトを表示する.
-//        myPinView.canShowCallout = true
-//        
-//        myPinView.pinTintColor = UIColor.blue
-//        
-//        // annotationを設定.
-//        myPinView.annotation = annotation
-//        
-//        return myPinView
-//        
-//    }
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
+        let myPinIdentifier = "PinAnnotationIdentifier"
+        
+        // ピンを生成.
+        let myPinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: myPinIdentifier)
+        
+        // アニメーションをつける.
+        myPinView.animatesDrop = true
+        
+        // コールアウトを表示する.
+        myPinView.canShowCallout = true
+        
+        myPinView.pinTintColor = UIColor.magenta
+        
+        // annotationを設定.
+        myPinView.annotation = annotation
+        
+        return myPinView
+        
+    }
     
     /*
      * トラッキングボタンが押されたときのメソッド（トラッキングモード切り替え）
